@@ -40,6 +40,7 @@ describe('Backbone generator with RequireJS', function () {
         'app/robots.txt',
         ['app/index.html', /(Bootstrap)(|.|\n)*(RequireJS)/i],
         'app/.htaccess',
+        'app/styles/main.scss',
         '.gitignore',
         '.gitattributes',
         '.bowerrc',
@@ -77,6 +78,11 @@ describe('Backbone generator with RequireJS', function () {
         'package.json'
       ];
 
+      helpers.mockPrompt(this.backbone.app, {
+        features: [],
+        includeRequireJS: true
+      });
+
       this.backbone.app.run({}, function () {
         helpers.assertFiles(expected);
         done();
@@ -84,8 +90,8 @@ describe('Backbone generator with RequireJS', function () {
     });
   });
 
-  describe('Backbone Model', function () {
-    it('creates backbone model', function (done) {
+  describe('creates backbone model', function () {
+    it('with default options', function (done) {
       var model = helpers.createGenerator('backbone:model', ['../../model'], ['foo']);
 
       this.backbone.app.run({}, function () {
@@ -98,10 +104,25 @@ describe('Backbone generator with RequireJS', function () {
         done();
       });
     });
+
+    it('with coffee option', function (done) {
+      var model = helpers.createGenerator('backbone:model', ['../../model'], ['foo']);
+
+      model.options.coffee = true;
+
+      this.backbone.app.run({}, function () {
+        model.run([], function () {
+          helpers.assertFiles([
+            ['app/scripts/models/foo.coffee', /var FooModel = Backbone.Model.extend\(\{/]
+          ]);
+        });
+        done();
+      });
+    });
   });
 
-  describe('Backbone Collection with RequireJS', function () {
-    it('creates backbone collection', function (done) {
+  describe('creates backbone collection', function () {
+    it('with default options', function (done) {
       var collection = helpers.createGenerator('backbone:collection', ['../../collection'], ['foo']);
 
       this.backbone.app.run({}, function () {
@@ -116,8 +137,8 @@ describe('Backbone generator with RequireJS', function () {
     });
   });
 
-  describe('Backbone Router with RequireJS', function () {
-    it('creates backbone router', function (done) {
+  describe('creates backbone router', function () {
+    it('with default options', function (done) {
       var router = helpers.createGenerator('backbone:router', ['../../router'], ['foo']);
 
       this.backbone.app.run({}, function () {
@@ -132,8 +153,8 @@ describe('Backbone generator with RequireJS', function () {
     });
   });
 
-  describe('Backbone View', function () {
-    it('creates backbone view', function (done) {
+  describe('creates backbone view', function () {
+    it('with default options', function (done) {
       var view = helpers.createGenerator('backbone:view', ['../../view'], ['foo']);
 
       this.backbone.app.run({}, function () {
@@ -141,6 +162,23 @@ describe('Backbone generator with RequireJS', function () {
           helpers.assertFiles([
             ['app/scripts/views/foo.js', /var FooView = Backbone.View.extend\(\{(.|\n)*app\/scripts\/templates\/foo.ejs/],
             'app/scripts/templates/foo.ejs'
+          ]);
+        });
+        done();
+      });
+    });
+  });
+
+  describe('coffeeScript files', function () {
+    it('will be included on build', function (done) {
+      var model = helpers.createGenerator('backbone:model', ['../../model'], ['foo']);
+
+      model.options.coffee = true;
+
+      this.backbone.app.run({}, function () {
+        model.run([], function () {
+          helpers.assertFiles([
+            ['app/scripts/models/foo.coffee', /var FooModel = Backbone.Model.extend\(\{/]
           ]);
         });
         done();
